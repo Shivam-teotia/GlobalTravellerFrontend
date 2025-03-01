@@ -5,13 +5,9 @@ import { useRouter } from "next/navigation";
 import ChallengeGame from "@/components/ChallengeGame";
 import ChallengeHeader from "@/components/DashboardHeader";
 
-interface ChallengePageProps {
-    params: {
-        id: string;
-    };
-}
-
-export default function ChallengePage({ params }: ChallengePageProps) {
+export default function ChallengePage({
+    params,
+}: Readonly<{ params: { id: string } }>) {
     const router = useRouter();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,7 +63,6 @@ export default function ChallengePage({ params }: ChallengePageProps) {
     if (!challenge) {
         return null; // Prevent rendering if challenge is not found
     }
-    console.log(challenge);
     return (
         <div className="min-h-screen flex flex-col">
             <ChallengeHeader
