@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ChallengeGame from "@/components/ChallengeGame";
 import ChallengeHeader from "@/components/DashboardHeader";
 
 export default function ChallengePage({
     params,
-}: Readonly<{ params: { id: string } }>) {
+}: {
+    params: Promise<{ id: string }>;
+}) {
     const router = useRouter();
+    const { id } = use(params); // Unwrap `params` using `use()`
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [challenge, setChallenge] = useState<any>(null);
@@ -17,16 +20,17 @@ export default function ChallengePage({
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!id) return; // Ensure `id` is available before making API calls
+
         const fetchChallengeData = async () => {
             try {
-                // Fetch challenge data
                 const challengeResponse = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}challenges/challenge/${params.id}`,
+                    `${process.env.NEXT_PUBLIC_API_URL}challenges/challenge/${id}`,
                     { cache: "no-store" }
                 );
 
                 if (!challengeResponse.ok) {
-                    router.push("/404"); // Redirect to 404 page if not found
+                    router.push("/404");
                     return;
                 }
 
@@ -54,7 +58,7 @@ export default function ChallengePage({
         };
 
         fetchChallengeData();
-    }, []);
+    }, [id, router]); // Added `id` & `router` to dependencies
 
     if (loading) {
         return <p className="text-center mt-10">Loading...</p>;
@@ -63,6 +67,7 @@ export default function ChallengePage({
     if (!challenge) {
         return null; // Prevent rendering if challenge is not found
     }
+
     return (
         <div className="min-h-screen flex flex-col">
             <ChallengeHeader
@@ -76,7 +81,7 @@ export default function ChallengePage({
             <main className="flex-1 container mx-auto px-4 py-8">
                 <ChallengeGame
                     userId={user?._id}
-                    challengeId={params.id}
+                    challengeId={id}
                     challengeImageUrl={challenge.imageUrl}
                 />
             </main>
